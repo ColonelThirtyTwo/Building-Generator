@@ -6,7 +6,7 @@ local Generator = {}
 
 local function dist2(x1,y1,z1,x2,y2,z2)
 	local dx, dy, dz = x1-x2, y1-y2, z1-z2
-	return dx*dx+dy*dy+dz*dz*5
+	return dx*dx+dy*dy+dz*dz*20
 end
 
 local function removeVal(tbl, val)

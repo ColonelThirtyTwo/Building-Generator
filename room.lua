@@ -59,9 +59,9 @@ function Room:intersects(other)
 	return (dx < (self.w + other.w)/2) and (dy < (self.h + other.h)/2)
 end
 
-function Room:draw()
+function Room:draw(a)
 	local r,g,b = hsv2rgb(self.z * 60 + 180, 1, 0.5)
-	gl.glColor3d(r,g,b)
+	gl.glColor4d(r,g,b,a or 1)
 	gl.glBegin(glc.GL_QUADS)
 		gl.glVertex3d(self.x+0.1,self.y+0.1, self.z)
 		gl.glVertex3d(self.x+0.1,self.y+self.h-0.1, self.z)

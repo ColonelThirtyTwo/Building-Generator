@@ -18,6 +18,8 @@ gl.glEnable(glc.GL_DEPTH_TEST)
 gl.glDisable(glc.GL_CULL_FACE)
 gl.glDisable(glc.GL_FOG)
 gl.glDisable(glc.GL_LIGHTING)
+gl.glEnable(glc.GL_BLEND)
+gl.glBlendFunc(glc.GL_SRC_ALPHA, glc.GL_ONE_MINUS_SRC_ALPHA)
 
 gl.glMatrixMode(glc.GL_PROJECTION)
 gl.glLoadIdentity()
@@ -41,7 +43,7 @@ local map, genroutine = require("generator").generate(W,H,D)
 while glfw.glfwWindowShouldClose(window) == 0 do
 	gl.glClear(bit.bor(glc.GL_COLOR_BUFFER_BIT, glc.GL_DEPTH_BUFFER_BIT))
 	
-	map:draw()
+	map:draw(2)
 	
 	glfw.glfwSwapBuffers(window)
 	

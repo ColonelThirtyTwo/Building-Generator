@@ -29,30 +29,28 @@ function Map:addRoom(room)
 	self.layers[room.z][#self.layers[room.z]+1] = room
 end
 
-function Map:draw()
-	-- Draw floor
-	--[[gl.glColor3d(0.1, 0.1, 0.1)
-	gl.glBegin(glc.GL_QUADS)
-		gl.glVertex3d(-20,-20, -0.1)
-		gl.glVertex3d(-20,0.3, -0.1)
-		gl.glVertex3d(self.w+20,0.3, -0.1)
-		gl.glVertex3d(self.w+20,-20, -0.1)
-	gl.glEnd()]]
-	
+function Map:draw(highlightlayer)
 	-- Draw rooms
-	for _,room in ipairs(self.rooms) do
-		room:draw()
+	for i,layer in ipairs(self.layers) do
+		for _,room in ipairs(layer) do
+			room:draw(i == highlightlayer and 1 or 0.2)
+		end
 	end
+	
+	gl.glClear(glc.GL_DEPTH_BUFFER_BIT)
 	
 	-- Draw room graph
 	if self.nodes then
 		gl.glBegin(glc.GL_LINES)
-		gl.glColor3d(0.8,0.8,0.4)
 		for _,node in ipairs(self.nodes) do
 			local cx, cy, cz = node:center()
 			
 			for _,other in ipairs(node.adjacent) do
 				local ocx, ocy, ocz = other:center()
+				
+				local a = (cz == highlightlayer or ocz == highlightlayer) and 1 or 0.1
+				gl.glColor4d(0.8,0.8,0.4,a)
+				
 				gl.glVertex3d(cx, cy, cz+0.05)
 				gl.glVertex3d(ocx, ocy, ocz+0.05)
 			end
@@ -61,10 +59,11 @@ function Map:draw()
 		
 		gl.glBegin(glc.GL_QUADS)
 		for _,node in ipairs(self.nodes) do
+			local a = node.z == highlightlayer and 1 or 0.1
 			if node.highlight then
-				gl.glColor3d(1,0.1,0.1)
+				gl.glColor4d(1,0.1,0.1,a)
 			else
-				gl.glColor3d(1,1,0.5)
+				gl.glColor4d(1,1,0.5,a)
 			end
 			
 			local cx, cy, cz = node:center()
@@ -85,6 +84,10 @@ function Map:draw()
 			
 			for _,other in ipairs(node.adjacent) do
 				local ocx, ocy, ocz = other:center()
+				
+				local a = (cz == highlightlayer or ocz == highlightlayer) and 1 or 0.1
+				gl.glColor4d(0.8,0.2,0.2,a)
+				
 				gl.glVertex3d(cx, cy, cz+0.05)
 				gl.glVertex3d(ocx, ocy, ocz+0.05)
 			end
@@ -93,10 +96,11 @@ function Map:draw()
 		
 		gl.glBegin(glc.GL_QUADS)
 		for _,node in ipairs(self.tree) do
+			local a = node.z == highlightlayer and 1 or 0.1
 			if node.highlight then
-				gl.glColor3d(1,0.1,0.1)
+				gl.glColor4d(1,0.1,0.1,a)
 			else
-				gl.glColor3d(1,0.3,0.3)
+				gl.glColor4d(1,0.3,0.3,a)
 			end
 			
 			local cx, cy, cz = node:center()
