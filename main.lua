@@ -52,8 +52,11 @@ while glfw.glfwWindowShouldClose(window) == 0 do
 	glfw.glfwPollEvents()
 	
 	if coroutine.status(genroutine) == "suspended" and glfw.glfwGetTime() >= nextUpdate then
-		nextUpdate = nextUpdate + updateTime
-		coroutine.resume(genroutine)
+		local ok, tm = coroutine.resume(genroutine)
+		if not ok then
+			error(debug.traceback(tostring(tm), genroutine), 0)
+		end
+		nextUpdate = nextUpdate + updateTime * (tm or 1)
 	end
 end
 

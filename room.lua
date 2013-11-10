@@ -32,12 +32,12 @@ function Room:draw(gl, glc)
 		gl.glVertex2d(self.x+self.w-0.1,self.y+0.1)
 	gl.glEnd()
 	
-	if self.node then
+	if self.adjacent then
 		local cx, cy = self.x + self.w/2, self.y + self.h/2
 		
 		gl.glColor3d(0.8,0.8,0.4)
 		gl.glBegin(glc.GL_LINES)
-		for _,other in ipairs(self.node) do
+		for _,other in ipairs(self.adjacent) do
 			local ocx, ocy = other.x + other.w/2, other.y + other.h/2
 			gl.glVertex3d(cx, cy, 0.5)
 			gl.glVertex3d(ocx, ocy, 0.5)
