@@ -81,29 +81,33 @@ function Generator.generate(w,h)
 		end
 		
 		-- Generate rooms
-		for y=0,map.h-1 do
-			for i=1,4 do
-				local room
-				local c = 0
-				repeat
-					local w, h = math.random(2,5), math.random(2)
-					local x, y = math.random(0,map.w-1-w), y
-					
-					room = Room(x,y,0,w,h)
-					for _, other in ipairs(map.rooms) do
-						if room:intersects(other) then
-							room = nil
-							break
-						end
-					end
-					c = c + 1
-				until room or c > 1000
-				
-				if room then
-					map.rooms[#map.rooms+1] = room
+		for i=1,25 do
+			local room
+			local c = 0
+			repeat
+				local w,h
+				if math.random() <= 0.3 then
+					w, h = 1, math.random(2,4)
+				else
+					w, h = math.random(2,5), 1
 				end
-				coroutine.yield()
+				
+				local x, y = math.random(0,map.w-1-w), math.random(0, map.h-1-h)
+				
+				room = Room(x,y,0,w,h)
+				for _, other in ipairs(map.rooms) do
+					if room:intersects(other) then
+						room = nil
+						break
+					end
+				end
+				c = c + 1
+			until room or c > 100
+			
+			if room then
+				map.rooms[#map.rooms+1] = room
 			end
+			coroutine.yield()
 		end
 		
 		-- Apply gravity
