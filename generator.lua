@@ -20,10 +20,10 @@ local function removeVal(tbl, val)
 end
 
 local function center(self)
-	return self.x + 0.5, self.y + 0.5
+	return self.x + 0.6, self.y + 0.6
 end
 local function offsetCenter(self)
-	return self.x + 0.3, self.y+0.3
+	return self.x + 0.4, self.y+0.4
 end
 
 local function gabriel(verticies)
@@ -162,7 +162,7 @@ function Generator.generate(w,h)
 			coroutine.yield()
 		end
 		
-		-- Generate Minimum spanning tree
+		-- Generate minimum spanning tree
 		do
 			local tree = map.tree
 			do
@@ -185,6 +185,7 @@ function Generator.generate(w,h)
 					for _,node2 in ipairs(node1.parent.adjacent) do
 						if not tree[node2]then
 							local d = dist2(node1.x, node1.y, node2.x, node2.y)
+							if node1.room ~= node2.room then d = d + 0.1 end
 							if d < min_d then
 								min_in = node1
 								min_out = node2
@@ -211,6 +212,31 @@ function Generator.generate(w,h)
 				n.adjacent[1] = min_in
 				n.adjacent[min_in] = true
 				coroutine.yield()
+			end
+		end
+		
+		-- Randomly re-connect nodes in the tree to form loops
+		do
+			local connections, c = 4, 0
+			while connections > 0 and c < 1000 do
+				c = c + 1
+				local n1 = map.tree[math.random(#map.tree)]
+				local n2p = n1.parent.adjacent[math.random(#n1.parent.adjacent)]
+				local n2 = map.tree[map.tree[n2p]]
+				if n1.room ~= n2.room and not n1.adjacent[n2] then
+					connections = connections - 1
+					c = 0
+					
+					n1.adjacent[#n1.adjacent+1] = n2
+					n1.adjacent[n2] = true
+					n2.adjacent[#n2.adjacent+1] = n1
+					n2.adjacent[n1] = true
+					coroutine.yield()
+				end
+			end
+			
+			if connections ~= 0 then
+				print("Not enough reconnections")
 			end
 		end
 	end)

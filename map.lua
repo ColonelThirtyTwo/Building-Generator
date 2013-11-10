@@ -13,11 +13,13 @@ function Map:__init(w,h)
 	this.rooms = {}
 	this.nodes = {}
 	this.tree = {}
+	this.corridors = {}
 	
 	return this
 end
 
 function Map:draw()
+	-- Draw floor
 	gl.glColor3d(0.1, 0.1, 0.1)
 	gl.glBegin(glc.GL_QUADS)
 		gl.glVertex3d(-20,-20, -0.1)
@@ -26,50 +28,57 @@ function Map:draw()
 		gl.glVertex3d(self.w+20,-20, -0.1)
 	gl.glEnd()
 	
+	-- Draw rooms
 	for _,room in ipairs(self.rooms) do
 		room:draw()
 	end
 	
-	for _,node in ipairs(self.nodes) do
-		local cx, cy = node:center()
-		
-		gl.glColor3d(0.8,0.8,0.4)
-		gl.glBegin(glc.GL_LINES)
-		for _,other in ipairs(node.adjacent) do
-			local ocx, ocy = other:center()
-			gl.glVertex3d(cx, cy, 0.5)
-			gl.glVertex3d(ocx, ocy, 0.5)
+	-- Draw room graph
+	if self.nodes then
+		for _,node in ipairs(self.nodes) do
+			local cx, cy = node:center()
+			
+			gl.glColor3d(0.8,0.8,0.4)
+			gl.glBegin(glc.GL_LINES)
+			for _,other in ipairs(node.adjacent) do
+				local ocx, ocy = other:center()
+				gl.glVertex3d(cx, cy, 0.5)
+				gl.glVertex3d(ocx, ocy, 0.5)
+			end
+			gl.glEnd()
+			
+			gl.glColor3d(1,1,0.5)
+			gl.glBegin(glc.GL_QUADS)
+				gl.glVertex3d(cx-0.1, cy, 1)
+				gl.glVertex3d(cx, cy+0.1, 1)
+				gl.glVertex3d(cx+0.1, cy, 1)
+				gl.glVertex3d(cx, cy-0.1, 1)
+			gl.glEnd()
 		end
-		gl.glEnd()
-		
-		gl.glColor3d(1,1,0.5)
-		gl.glBegin(glc.GL_QUADS)
-			gl.glVertex3d(cx-0.1, cy, 1)
-			gl.glVertex3d(cx, cy+0.1, 1)
-			gl.glVertex3d(cx+0.1, cy, 1)
-			gl.glVertex3d(cx, cy-0.1, 1)
-		gl.glEnd()
 	end
 	
-	for _,node in ipairs(self.tree) do
-		local cx, cy = node:center()
-		
-		gl.glColor3d(0.8,0.2,0.2)
-		gl.glBegin(glc.GL_LINES)
-		for _,other in ipairs(node.adjacent) do
-			local ocx, ocy = other:center()
-			gl.glVertex3d(cx, cy, 1.5)
-			gl.glVertex3d(ocx, ocy, 1.5)
+	-- Draw minimal tree
+	if self.tree then
+		for _,node in ipairs(self.tree) do
+			local cx, cy = node:center()
+			
+			gl.glColor3d(0.8,0.2,0.2)
+			gl.glBegin(glc.GL_LINES)
+			for _,other in ipairs(node.adjacent) do
+				local ocx, ocy = other:center()
+				gl.glVertex3d(cx, cy, 1.5)
+				gl.glVertex3d(ocx, ocy, 1.5)
+			end
+			gl.glEnd()
+			
+			gl.glColor3d(1,0.3,0.3)
+			gl.glBegin(glc.GL_QUADS)
+				gl.glVertex3d(cx-0.1, cy, 2)
+				gl.glVertex3d(cx, cy+0.1, 2)
+				gl.glVertex3d(cx+0.1, cy, 2)
+				gl.glVertex3d(cx, cy-0.1, 2)
+			gl.glEnd()
 		end
-		gl.glEnd()
-		
-		gl.glColor3d(1,0.3,0.3)
-		gl.glBegin(glc.GL_QUADS)
-			gl.glVertex3d(cx-0.1, cy, 2)
-			gl.glVertex3d(cx, cy+0.1, 2)
-			gl.glVertex3d(cx+0.1, cy, 2)
-			gl.glVertex3d(cx, cy-0.1, 2)
-		gl.glEnd()
 	end
 end
 
