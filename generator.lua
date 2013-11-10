@@ -239,6 +239,9 @@ function Generator.generate(w,h)
 				print("Not enough reconnections")
 			end
 		end
+		
+		map.nodes = nil
+		coroutine.yield()
 	end)
 end
 
