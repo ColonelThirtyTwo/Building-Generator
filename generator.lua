@@ -70,6 +70,16 @@ end
 function Generator.generate(w,h)
 	local map = Map(w,h)
 	return map, coroutine.create(function()
+		
+		local function intersects(room)
+			for _,other in ipairs(map.rooms) do
+				if room ~= other and room:intersects(other) then
+					return true
+				end
+			end
+			return false
+		end
+		
 		-- Generate rooms
 		for y=0,map.h-1 do
 			for i=1,4 do
@@ -94,6 +104,16 @@ function Generator.generate(w,h)
 				end
 				coroutine.yield()
 			end
+		end
+		
+		-- Apply gravity
+		table.sort(map.rooms, function(a,b) return a.y < b.y end)
+		for _,room in ipairs(map.rooms) do
+			repeat
+				room.y = room.y - 1
+			until room.y < 0 or intersects(room)
+			room.y = room.y + 1
+			coroutine.yield()
 		end
 		
 		-- Generate nodes
