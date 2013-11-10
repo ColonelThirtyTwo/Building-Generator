@@ -39,7 +39,12 @@ glu.gluLookAt(
 local updateTime = 0.05
 local highlight_layer = 0
 local nextUpdate = glfw.glfwGetTime() + updateTime
-local map, genroutine = require("generator").generate(W,H,D)
+local map, genroutine = require("generator").generate({
+	w = W, h = H, d = D,
+	
+	rooms = 50,
+	loops = 10,
+})
 
 local function keyboard_cb(window, key, scancode, action, mods)
 	if action == lujgl.glfwconst.GLFW_PRESS then

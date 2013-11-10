@@ -120,8 +120,8 @@ local function relneighbor(verticies)
 	end
 end
 
-function Generator.generate(w,h,d)
-	local map = Map(w,h,d)
+function Generator.generate(options)
+	local map = Map(options.w,options.h,options.d)
 	return map, coroutine.create(function()
 		
 		local function intersects(room)
@@ -134,7 +134,7 @@ function Generator.generate(w,h,d)
 		end
 		
 		-- Generate rooms
-		for i=1,50 do
+		for i=1,options.rooms do
 			local room
 			local c = 0
 			repeat
@@ -258,7 +258,7 @@ function Generator.generate(w,h,d)
 		
 		-- Randomly re-connect nodes in the tree to form loops
 		do
-			local num_connections, c = 6, 0
+			local num_connections, c = options.loops, 0
 			while num_connections > 0 and c < 1000 do
 				c = c + 1
 				local rand_node = map.tree[math.random(#map.tree)]
