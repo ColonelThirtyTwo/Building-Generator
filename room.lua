@@ -13,6 +13,10 @@ function Room:__init(x,y,z,w,h)
 	return this
 end
 
+function Room:center()
+	return self.x + self.w/2, self.y + self.h/2
+end
+
 function Room:intersects(other)
 	if self.z ~= other.z then return false end
 	

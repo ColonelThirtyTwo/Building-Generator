@@ -4,28 +4,52 @@ local Map = require "map"
 
 local Generator = {}
 
+local function dist2(x1,y1,x2,y2)
+	local dx, dy = x1-x2, y1-y2
+	return dx*dx+dy*dy
+end
+
 local function gabriel(verticies)
 	coroutine.yield()
 	for i=2,#verticies do
 		for j=1,i-1 do
-			local p1, p2 = verticies[i], verticies[j]
-			local midx, midy = (p1.x+p2.x)/2, (p1.y+p2.y)/2
-			local r2
-			do
-				local dx, dy = (p1.x-p2.x)/2, (p1.y-p2.y)/2
-				r2 = dx*dx+dy*dy
-			end
+			local p1x, p1y = verticies[i]:center()
+			local p2x, p2y = verticies[j]:center()
+			
+			local midx, midy = (p1x+p2x)/2, (p1y+p2y)/2
+			local r2 = dist2(midx, midy, p1x, p1y)
 			
 			local is_neighbor = true
 			for k=1,#verticies do
 				if k ~= i and k ~= j then
-					local p3 = verticies[k]
-					local d2
-					do
-						local dx, dy = midx-p3.x, midy-p3.y
-						d2 = dx*dx+dy*dy
+					local p3x, p3y = verticies[k]:center()
+					if dist2(midx, midy, p3x, p3y) <= r2 then
+						is_neighbor = false
+						break
 					end
-					if d2 <= r2 then
+				end
+			end
+			
+			if is_neighbor then
+				coroutine.yield(verticies[i], verticies[j])
+			end
+		end
+	end
+end
+
+local function relneighbor(verticies)
+	coroutine.yield()
+	for i=2,#verticies do
+		for j=1,i-1 do
+			local p1x, p1y = verticies[i]:center()
+			local p2x, p2y = verticies[j]:center()
+			local r = dist2(p1x, p1y, p2x, p2y)
+			
+			local is_neighbor = true
+			for k=1,#verticies do
+				if k ~= i and k ~= j then
+					local p3x, p3y = verticies[k]:center()
+					if dist2(p3x, p3y, p1x, p1y) < r and dist2(p3x, p3y, p2x, p2y) < r then
 						is_neighbor = false
 						break
 					end
@@ -73,10 +97,10 @@ function Generator.generate(w,h)
 			coroutine.yield(0.5)
 		end
 		
-		-- Generate gabriel graph
-		local gabriel = coroutine.wrap(gabriel)
-		gabriel(map.rooms)
-		for p1, p2 in gabriel do
+		-- Generate graph
+		local graphgen = coroutine.wrap(relneighbor)
+		graphgen(map.rooms)
+		for p1, p2 in graphgen do
 			p1.adjacent[#p1.adjacent+1] = p2
 			p1.adjacent[p2] = true
 			
