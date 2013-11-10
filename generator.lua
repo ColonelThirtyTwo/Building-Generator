@@ -9,6 +9,16 @@ local function dist2(x1,y1,x2,y2)
 	return dx*dx+dy*dy
 end
 
+local function removeVal(tbl, val)
+	for i=1,#tbl do
+		if tbl[i] == val then
+			table.remove(tbl, i)
+			return true
+		end
+	end
+	return false
+end
+
 local function center(self)
 	return self.x + 0.5, self.y + 0.5
 end
@@ -143,13 +153,27 @@ function Generator.generate(w,h)
 		local graphgen = coroutine.wrap(relneighbor)
 		graphgen(map.nodes)
 		for p1, p2 in graphgen do
-			p1.adjacent[#p1.adjacent+1] = p2
-			p1.adjacent[p2] = true
-			
-			p2.adjacent[#p2.adjacent+1] = p1
-			p2.adjacent[p1] = true
-			coroutine.yield(0.2)
+			if p1.room ~= p2.room then
+				p1.adjacent[#p1.adjacent+1] = p2
+				p1.adjacent[p2] = true
+				
+				p2.adjacent[#p2.adjacent+1] = p1
+				p2.adjacent[p1] = true
+				coroutine.yield(0.2)
+			end
 		end
+		
+		-- Mark nodes for deletion
+		for i=#map.nodes,1,-1 do
+			local node = map.nodes[i]
+			if #node.adjacent == 0 then
+				table.remove(map.nodes, i)
+				assert(removeVal(node.room.nodes, node))
+				node.room.nodes[node] = nil
+				coroutine.yield(0.2)
+			end
+		end
+		
 	end)
 end
 

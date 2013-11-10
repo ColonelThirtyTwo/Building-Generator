@@ -39,14 +39,18 @@ while glfw.glfwWindowShouldClose(window) == 0 do
 	map:draw()
 	
 	glfw.glfwSwapBuffers(window)
-	glfw.glfwPollEvents()
 	
-	if coroutine.status(genroutine) == "suspended" and glfw.glfwGetTime() >= nextUpdate then
-		local ok, tm = coroutine.resume(genroutine)
-		if not ok then
-			error(debug.traceback(tostring(tm), genroutine), 0)
+	if coroutine.status(genroutine) == "suspended" then
+		if glfw.glfwGetTime() >= nextUpdate then
+			local ok, tm = coroutine.resume(genroutine)
+			if not ok then
+				error(debug.traceback(tostring(tm), 0, genroutine), 0)
+			end
+			nextUpdate = nextUpdate + updateTime * (tm or 1)
 		end
-		nextUpdate = nextUpdate + updateTime * (tm or 1)
+		glfw.glfwPollEvents()
+	else
+		glfw.glfwWaitEvents()
 	end
 end
 
