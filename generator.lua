@@ -4,9 +4,9 @@ local Map = require "map"
 
 local Generator = {}
 
-local function dist2(x1,y1,x2,y2)
-	local dx, dy = x1-x2, y1-y2
-	return dx*dx+dy*dy
+local function dist2(x1,y1,z1,x2,y2,z2)
+	local dx, dy, dz = x1-x2, y1-y2, z1-z2
+	return dx*dx+dy*dy+dz*dz*5
 end
 
 local function removeVal(tbl, val)
@@ -70,17 +70,17 @@ local function gabriel(verticies)
 	coroutine.yield()
 	for i=2,#verticies do
 		for j=1,i-1 do
-			local p1x, p1y = verticies[i]:center()
-			local p2x, p2y = verticies[j]:center()
+			local p1x, p1y, p1z = verticies[i]:center()
+			local p2x, p2y, p2z = verticies[j]:center()
 			
-			local midx, midy = (p1x+p2x)/2, (p1y+p2y)/2
-			local r2 = dist2(midx, midy, p1x, p1y)
+			local midx, midy, midz = (p1x+p2x)/2, (p1y+p2y)/2, (p1z+p2z)/2
+			local r2 = dist2(midx, midy, midz, p1x, p1y, p1z)
 			
 			local is_neighbor = true
 			for k=1,#verticies do
 				if k ~= i and k ~= j then
-					local p3x, p3y = verticies[k]:center()
-					if dist2(midx, midy, p3x, p3y) <= r2 then
+					local p3x, p3y, p3z = verticies[k]:center()
+					if dist2(midx, midy, midz, p3x, p3y, p3z) <= r2 then
 						is_neighbor = false
 						break
 					end
@@ -98,15 +98,15 @@ local function relneighbor(verticies)
 	coroutine.yield()
 	for i=2,#verticies do
 		for j=1,i-1 do
-			local p1x, p1y = verticies[i]:center()
-			local p2x, p2y = verticies[j]:center()
-			local r = dist2(p1x, p1y, p2x, p2y)
+			local p1x, p1y, p1z = verticies[i]:center()
+			local p2x, p2y, p2z = verticies[j]:center()
+			local r = dist2(p1x, p1y, p1z, p2x, p2y, p2z)
 			
 			local is_neighbor = true
 			for k=1,#verticies do
 				if k ~= i and k ~= j then
-					local p3x, p3y = verticies[k]:center()
-					if dist2(p3x, p3y, p1x, p1y) < r and dist2(p3x, p3y, p2x, p2y) < r then
+					local p3x, p3y, p3z = verticies[k]:center()
+					if dist2(p3x, p3y, p3z, p1x, p1y, p1z) < r and dist2(p3x, p3y, p3z, p2x, p2y, p2z) < r then
 						is_neighbor = false
 						break
 					end
@@ -134,7 +134,7 @@ function Generator.generate(w,h,d)
 		end
 		
 		-- Generate rooms
-		for i=1,25 do
+		for i=1,50 do
 			local room
 			local c = 0
 			repeat
@@ -145,9 +145,9 @@ function Generator.generate(w,h,d)
 					w, h = math.random(2,5), 1
 				end
 				
-				local x, y = math.random(0,map.w-1-w), math.random(0, map.h-1-h)
+				local x, y, z = math.random(0,map.w-1-w), math.random(0, map.h-1-h), math.random(map.d)
 				
-				room = Room(x,y,1,w,h)
+				room = Room(x,y,z,w,h)
 				for _, other in ipairs(map.rooms) do
 					if room:intersects(other) then
 						room = nil
@@ -225,7 +225,7 @@ function Generator.generate(w,h,d)
 				for _,node1 in ipairs(tree) do
 					for _,node2 in ipairs(node1.parent.adjacent) do
 						if not tree[node2]then
-							local d = dist2(node1.x, node1.y, node2.x, node2.y)
+							local d = dist2(node1.x, node1.y, node1.z, node2.x, node2.y, node2.z)
 							if node1.room ~= node2.room then d = d + 0.1 end
 							if d < min_d then
 								min_in = node1

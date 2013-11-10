@@ -14,7 +14,7 @@ assert(window ~= nil)
 
 glfw.glfwMakeContextCurrent(window)
 
-gl.glDisable(glc.GL_DEPTH_TEST)
+gl.glEnable(glc.GL_DEPTH_TEST)
 gl.glDisable(glc.GL_CULL_FACE)
 gl.glDisable(glc.GL_FOG)
 gl.glDisable(glc.GL_LIGHTING)
@@ -49,7 +49,7 @@ while glfw.glfwWindowShouldClose(window) == 0 do
 		if glfw.glfwGetTime() >= nextUpdate then
 			local ok, tm = coroutine.resume(genroutine)
 			if not ok then
-				error(debug.traceback(tostring(tm), 0, genroutine), 0)
+				error(debug.traceback(genroutine, tostring(tm), 0), 0)
 			end
 			nextUpdate = nextUpdate + updateTime * (tm or 1)
 		end

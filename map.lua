@@ -53,8 +53,8 @@ function Map:draw()
 			
 			for _,other in ipairs(node.adjacent) do
 				local ocx, ocy, ocz = other:center()
-				gl.glVertex3d(cx, cy, cz)
-				gl.glVertex3d(ocx, ocy, ocz)
+				gl.glVertex3d(cx, cy, cz+0.05)
+				gl.glVertex3d(ocx, ocy, ocz+0.05)
 			end
 		end
 		gl.glEnd()
@@ -68,10 +68,10 @@ function Map:draw()
 			end
 			
 			local cx, cy, cz = node:center()
-			gl.glVertex3d(cx-0.1, cy, cz)
-			gl.glVertex3d(cx, cy+0.1, cz)
-			gl.glVertex3d(cx+0.1, cy, cz)
-			gl.glVertex3d(cx, cy-0.1, cz)
+			gl.glVertex3d(cx-0.1, cy, cz+0.1)
+			gl.glVertex3d(cx, cy+0.1, cz+0.1)
+			gl.glVertex3d(cx+0.1, cy, cz+0.1)
+			gl.glVertex3d(cx, cy-0.1, cz+0.1)
 		end
 		gl.glEnd()
 	end
@@ -85,8 +85,8 @@ function Map:draw()
 			
 			for _,other in ipairs(node.adjacent) do
 				local ocx, ocy, ocz = other:center()
-				gl.glVertex3d(cx, cy, cz)
-				gl.glVertex3d(ocx, ocy, ocz)
+				gl.glVertex3d(cx, cy, cz+0.05)
+				gl.glVertex3d(ocx, ocy, ocz+0.05)
 			end
 		end
 		gl.glEnd()
@@ -100,10 +100,10 @@ function Map:draw()
 			end
 			
 			local cx, cy, cz = node:center()
-			gl.glVertex3d(cx-0.1, cy, cz)
-			gl.glVertex3d(cx, cy+0.1, cz)
-			gl.glVertex3d(cx+0.1, cy, cz)
-			gl.glVertex3d(cx, cy-0.1, cz)
+			gl.glVertex3d(cx-0.1, cy, cz+0.1)
+			gl.glVertex3d(cx, cy+0.1, cz+0.1)
+			gl.glVertex3d(cx+0.1, cy, cz+0.1)
+			gl.glVertex3d(cx, cy-0.1, cz+0.1)
 		end
 		gl.glEnd()
 	end
