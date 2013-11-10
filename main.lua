@@ -37,13 +37,28 @@ glu.gluLookAt(
 --gl.glScaled((SCREEN_W-100)/W, (SCREEN_W-100)/W, 1)
 
 local updateTime = 0.05
+local highlight_layer = 0
 local nextUpdate = glfw.glfwGetTime() + updateTime
 local map, genroutine = require("generator").generate(W,H,D)
+
+local function keyboard_cb(window, key, scancode, action, mods)
+	if action == lujgl.glfwconst.GLFW_PRESS then
+		if key == lujgl.glfwconst.GLFW_KEY_UP then
+			highlight_layer = highlight_layer + 1
+		elseif key == lujgl.glfwconst.GLFW_KEY_DOWN then
+			highlight_layer = highlight_layer - 1
+		end
+		
+		highlight_layer = highlight_layer % (map.d+1)
+	end
+end
+require("jit").off(keyboard_cb)
+glfw.glfwSetKeyCallback(window, keyboard_cb)
 
 while glfw.glfwWindowShouldClose(window) == 0 do
 	gl.glClear(bit.bor(glc.GL_COLOR_BUFFER_BIT, glc.GL_DEPTH_BUFFER_BIT))
 	
-	map:draw(2)
+	map:draw(highlight_layer ~= 0 and highlight_layer or nil)
 	
 	glfw.glfwSwapBuffers(window)
 	

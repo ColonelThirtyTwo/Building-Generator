@@ -2960,32 +2960,6 @@ do
 	]]
 	
 	-- GLFW
-	if jit.os == "Windows" then
-		-- GLFW callbacks are declared as stdcall on windows
-		ffi.cdef[[
-			typedef void (__stdcall * GLFWwindowsizefun)(int,int);
-			typedef int  (__stdcall * GLFWwindowclosefun)(void);
-			typedef void (__stdcall * GLFWwindowrefreshfun)(void);
-			typedef void (__stdcall * GLFWmousebuttonfun)(int,int);
-			typedef void (__stdcall * GLFWmouseposfun)(int,int);
-			typedef void (__stdcall * GLFWmousewheelfun)(int);
-			typedef void (__stdcall * GLFWkeyfun)(int,int);
-			typedef void (__stdcall * GLFWcharfun)(int,int);
-			typedef void (__stdcall * GLFWthreadfun)(void *);
-		]]
-	else
-		ffi.cdef[[
-			typedef void (*GLFWwindowsizefun)(int,int);
-			typedef int  (*GLFWwindowclosefun)(void);
-			typedef void (*GLFWwindowrefreshfun)(void);
-			typedef void (*GLFWmousebuttonfun)(int,int);
-			typedef void (*GLFWmouseposfun)(int,int);
-			typedef void (*GLFWmousewheelfun)(int);
-			typedef void (*GLFWkeyfun)(int,int);
-			typedef void (*GLFWcharfun)(int,int);
-			typedef void (*GLFWthreadfun)(void *);
-		]]
-	end
 	ffi.cdef[[
 		typedef void (*GLFWglproc)(void);
 		typedef struct GLFWmonitor GLFWmonitor;
