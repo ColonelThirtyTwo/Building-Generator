@@ -38,12 +38,12 @@ function Map:draw()
 		gl.glBegin(glc.GL_LINES)
 		gl.glColor3d(0.8,0.8,0.4)
 		for _,node in ipairs(self.nodes) do
-			local cx, cy = node:center()
+			local cx, cy, cz = node:center()
 			
 			for _,other in ipairs(node.adjacent) do
-				local ocx, ocy = other:center()
-				gl.glVertex3d(cx, cy, 0)
-				gl.glVertex3d(ocx, ocy, 0)
+				local ocx, ocy, ocz = other:center()
+				gl.glVertex3d(cx, cy, cz)
+				gl.glVertex3d(ocx, ocy, ocz)
 			end
 		end
 		gl.glEnd()
@@ -56,11 +56,11 @@ function Map:draw()
 				gl.glColor3d(1,1,0.5)
 			end
 			
-			local cx, cy = node:center()
-			gl.glVertex3d(cx-0.1, cy, 0)
-			gl.glVertex3d(cx, cy+0.1, 0)
-			gl.glVertex3d(cx+0.1, cy, 0)
-			gl.glVertex3d(cx, cy-0.1, 0)
+			local cx, cy, cz = node:center()
+			gl.glVertex3d(cx-0.1, cy, cz)
+			gl.glVertex3d(cx, cy+0.1, cz)
+			gl.glVertex3d(cx+0.1, cy, cz)
+			gl.glVertex3d(cx, cy-0.1, cz)
 		end
 		gl.glEnd()
 	end
@@ -70,12 +70,12 @@ function Map:draw()
 		gl.glColor3d(0.8,0.2,0.2)
 		gl.glBegin(glc.GL_LINES)
 		for _,node in ipairs(self.tree) do
-			local cx, cy = node:center()
+			local cx, cy, cz = node:center()
 			
 			for _,other in ipairs(node.adjacent) do
-				local ocx, ocy = other:center()
-				gl.glVertex3d(cx, cy, 0)
-				gl.glVertex3d(ocx, ocy, 0)
+				local ocx, ocy, ocz = other:center()
+				gl.glVertex3d(cx, cy, cz)
+				gl.glVertex3d(ocx, ocy, ocz)
 			end
 		end
 		gl.glEnd()
@@ -88,11 +88,11 @@ function Map:draw()
 				gl.glColor3d(1,0.3,0.3)
 			end
 			
-			local cx, cy = node:center()
-			gl.glVertex3d(cx-0.1, cy, 0)
-			gl.glVertex3d(cx, cy+0.1, 0)
-			gl.glVertex3d(cx+0.1, cy, 0)
-			gl.glVertex3d(cx, cy-0.1, 0)
+			local cx, cy, cz = node:center()
+			gl.glVertex3d(cx-0.1, cy, cz)
+			gl.glVertex3d(cx, cy+0.1, cz)
+			gl.glVertex3d(cx+0.1, cy, cz)
+			gl.glVertex3d(cx, cy-0.1, cz)
 		end
 		gl.glEnd()
 	end

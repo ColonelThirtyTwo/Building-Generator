@@ -20,10 +20,10 @@ local function removeVal(tbl, val)
 end
 
 local function center(self)
-	return self.x + 0.6, self.y + 0.6
+	return self.x + 0.6, self.y + 0.6, self.z
 end
 local function offsetCenter(self)
-	return self.x + 0.4, self.y+0.4
+	return self.x + 0.4, self.y+0.4, self.z
 end
 
 local function adjacentRooms(node, baseroom, list, visited)
@@ -180,6 +180,7 @@ function Generator.generate(w,h)
 					local n = {
 						x = x,
 						y = y,
+						z = room.z,
 						room = room,
 						adjacent = {},
 						center = center,
@@ -208,7 +209,7 @@ function Generator.generate(w,h)
 			do
 				local bn = map.nodes[1]
 				local n = {
-					x = bn.x, y = bn.y,
+					x = bn.x, y = bn.y, z = bn.z,
 					room = bn.room,
 					center = offsetCenter,
 					parent = bn,
@@ -237,7 +238,7 @@ function Generator.generate(w,h)
 				assert(min_out)
 				
 				local n = {
-					x = min_out.x, y = min_out.y,
+					x = min_out.x, y = min_out.y, z = min_out.z,
 					room = min_out.room,
 					center = offsetCenter,
 					parent = min_out,
