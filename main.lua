@@ -36,7 +36,7 @@ glu.gluLookAt(
 
 local updateTime = 0.05
 local nextUpdate = glfw.glfwGetTime() + updateTime
-local map, genroutine = require("generator").generate(W,H)
+local map, genroutine = require("generator").generate(W,H,D)
 
 while glfw.glfwWindowShouldClose(window) == 0 do
 	gl.glClear(bit.bor(glc.GL_COLOR_BUFFER_BIT, glc.GL_DEPTH_BUFFER_BIT))

@@ -12,10 +12,21 @@ function Map:__init(w,h,d)
 	this.h = h
 	this.d = d
 	this.rooms = {}
+	
+	this.layers = {}
+	for i=1,d do
+		this.layers[i] = {}
+	end
+	
 	this.nodes = {}
 	this.tree = {}
 	
 	return this
+end
+
+function Map:addRoom(room)
+	self.rooms[#self.rooms+1] = room
+	self.layers[room.z][#self.layers[room.z]+1] = room
 end
 
 function Map:draw()

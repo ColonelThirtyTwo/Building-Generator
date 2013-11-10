@@ -120,8 +120,8 @@ local function relneighbor(verticies)
 	end
 end
 
-function Generator.generate(w,h)
-	local map = Map(w,h)
+function Generator.generate(w,h,d)
+	local map = Map(w,h,d)
 	return map, coroutine.create(function()
 		
 		local function intersects(room)
@@ -147,7 +147,7 @@ function Generator.generate(w,h)
 				
 				local x, y = math.random(0,map.w-1-w), math.random(0, map.h-1-h)
 				
-				room = Room(x,y,0,w,h)
+				room = Room(x,y,1,w,h)
 				for _, other in ipairs(map.rooms) do
 					if room:intersects(other) then
 						room = nil
@@ -158,7 +158,7 @@ function Generator.generate(w,h)
 			until room or c > 100
 			
 			if room then
-				map.rooms[#map.rooms+1] = room
+				map:addRoom(room)
 			end
 			coroutine.yield()
 		end
