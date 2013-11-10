@@ -5,6 +5,36 @@ local gl, glc = lujgl.gl, lujgl.glconst
 
 local Room, super = oop.Class()
 
+local function hsv2rgb(h, s, v)
+	if s == 0 then
+		return v, v, v
+	end
+	
+	h = (h % 360) / 60
+	local i = math.floor(h)
+	local f = h - i
+	
+	local p = v*(1-s)
+	local q = v*(1-s*f)
+	local t = v*(1-s*(1-f))
+	
+	if i == 0 then
+		return v, t, p
+	elseif i == 1 then
+		return q, v, p
+	elseif i == 2 then
+		return p, v, t
+	elseif i == 3 then
+		return p, q, v
+	elseif i == 4 then
+		return t, p, v
+	elseif i == 5 then
+		return v, p, q
+	else
+		assert(false)
+	end
+end
+
 function Room:__init(x,y,z,w,h)
 	local this = super.__init(self)
 	this.x = x
@@ -30,7 +60,8 @@ function Room:intersects(other)
 end
 
 function Room:draw()
-	gl.glColor3d(0,0,1)
+	local r,g,b = hsv2rgb(self.z * 60 + 180, 1, 0.5)
+	gl.glColor3d(r,g,b)
 	gl.glBegin(glc.GL_QUADS)
 		gl.glVertex2d(self.x+0.1,self.y+0.1)
 		gl.glVertex2d(self.x+0.1,self.y+self.h-0.1)
@@ -39,8 +70,8 @@ function Room:draw()
 	gl.glEnd()
 end
 
---function Room:__tostring()
---	return string.format("Room:(%d,%d,%d)x(%d,%d)", self.x, self.y, self.z, self.w, self.h)
---end
+function Room:__tostring()
+	return string.format("Room:(%d,%d,%d)x(%d,%d)", self.x, self.y, self.z, self.w, self.h)
+end
 
 return Room
