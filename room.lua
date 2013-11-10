@@ -1,5 +1,7 @@
 
 local oop = require "oop"
+local lujgl = require "lujgl"
+local gl, glc = lujgl.gl, lujgl.glconst
 
 local Room, super = oop.Class()
 
@@ -27,7 +29,7 @@ function Room:intersects(other)
 	return (dx < (self.w + other.w)/2) and (dy < (self.h + other.h)/2)
 end
 
-function Room:draw(gl, glc)
+function Room:draw()
 	gl.glColor3d(0,0,1)
 	gl.glBegin(glc.GL_QUADS)
 		gl.glVertex2d(self.x+0.1,self.y+0.1)
@@ -35,27 +37,6 @@ function Room:draw(gl, glc)
 		gl.glVertex2d(self.x+self.w-0.1,self.y+self.h-0.1)
 		gl.glVertex2d(self.x+self.w-0.1,self.y+0.1)
 	gl.glEnd()
-	
-	if self.adjacent then
-		local cx, cy = self.x + self.w/2, self.y + self.h/2
-		
-		gl.glColor3d(0.8,0.8,0.4)
-		gl.glBegin(glc.GL_LINES)
-		for _,other in ipairs(self.adjacent) do
-			local ocx, ocy = other.x + other.w/2, other.y + other.h/2
-			gl.glVertex3d(cx, cy, 0.5)
-			gl.glVertex3d(ocx, ocy, 0.5)
-		end
-		gl.glEnd()
-		
-		gl.glColor3d(1,1,0.5)
-		gl.glBegin(glc.GL_QUADS)
-			gl.glVertex3d(cx-0.1, cy, 1)
-			gl.glVertex3d(cx, cy+0.1, 1)
-			gl.glVertex3d(cx+0.1, cy, 1)
-			gl.glVertex3d(cx, cy-0.1, 1)
-		gl.glEnd()
-	end
 end
 
 return Room

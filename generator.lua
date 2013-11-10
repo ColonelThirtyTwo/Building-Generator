@@ -9,6 +9,10 @@ local function dist2(x1,y1,x2,y2)
 	return dx*dx+dy*dy
 end
 
+local function center(self)
+	return self.x + 0.5, self.y + 0.5
+end
+
 local function gabriel(verticies)
 	coroutine.yield()
 	for i=2,#verticies do
@@ -92,21 +96,35 @@ function Generator.generate(w,h)
 			end
 		end
 		
+		-- Generate nodes
 		for _,room in ipairs(map.rooms) do
-			room.adjacent = {}
-			coroutine.yield(0.5)
+			room.nodes = room.nodes or {}
+			for x=room.x,room.x+room.w-1 do
+				for y=room.y,room.y+room.h-1 do
+					local n = {
+						x = x,
+						y = y,
+						room = room,
+						adjacent = {},
+						center = center,
+					}
+					map.nodes[#map.nodes+1] = n
+					room.nodes[#room.nodes+1] = n
+					coroutine.yield(0.1)
+				end
+			end
 		end
 		
 		-- Generate graph
 		local graphgen = coroutine.wrap(relneighbor)
-		graphgen(map.rooms)
+		graphgen(map.nodes)
 		for p1, p2 in graphgen do
 			p1.adjacent[#p1.adjacent+1] = p2
 			p1.adjacent[p2] = true
 			
 			p2.adjacent[#p2.adjacent+1] = p1
 			p2.adjacent[p1] = true
-			coroutine.yield()
+			coroutine.yield(0.2)
 		end
 	end)
 end

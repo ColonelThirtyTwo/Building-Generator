@@ -36,17 +36,7 @@ local map, genroutine = require("generator").generate(W,H)
 while glfw.glfwWindowShouldClose(window) == 0 do
 	gl.glClear(bit.bor(glc.GL_COLOR_BUFFER_BIT, glc.GL_DEPTH_BUFFER_BIT))
 	
-	gl.glColor3d(0.1, 0.1, 0.1)
-	gl.glBegin(glc.GL_QUADS)
-		gl.glVertex2d(-20,-20)
-		gl.glVertex2d(-20,0.3)
-		gl.glVertex2d(W+20,0.3)
-		gl.glVertex2d(W+20,-20)
-	gl.glEnd()
-	
-	for _,room in ipairs(map.rooms) do
-		room:draw(gl, glc)
-	end
+	map:draw()
 	
 	glfw.glfwSwapBuffers(window)
 	glfw.glfwPollEvents()
