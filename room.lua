@@ -39,4 +39,8 @@ function Room:draw()
 	gl.glEnd()
 end
 
+--function Room:__tostring()
+--	return string.format("Room:(%d,%d,%d)x(%d,%d)", self.x, self.y, self.z, self.w, self.h)
+--end
+
 return Room

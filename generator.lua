@@ -26,6 +26,46 @@ local function offsetCenter(self)
 	return self.x + 0.4, self.y+0.4
 end
 
+local function adjacentRooms(node, baseroom, list, visited)
+	list = list or {}
+	baseroom = baseroom or node.room
+	visited = visited or {}
+	
+	if not visited[node] then
+		visited[node] = true
+		list[node.room] = true
+	
+		if node.room == baseroom then
+			for _,adjnode in ipairs(node.adjacent) do
+				adjacentRooms(adjnode, baseroom, list, visited)
+			end
+		end
+	end
+	
+	return list, visited
+end
+
+local function adjRoomSearch(node, rooms, baseroom, list, visited, prev)
+	baseroom = baseroom or node.room
+	list = list or {}
+	visited = visited or {}
+	
+	if not visited[node] then
+		node.highlight = true
+		coroutine.yield()
+		
+		visited[node] = true
+		if node.room == baseroom then
+			for _,adjnode in ipairs(node.adjacent) do
+				adjRoomSearch(adjnode, rooms, baseroom, list, visited, node)
+			end
+		elseif rooms[node.room] then
+			list[#list+1] = {prev, node}
+		end
+	end
+	return list, visited
+end
+
 local function gabriel(verticies)
 	coroutine.yield()
 	for i=2,#verticies do
@@ -217,15 +257,34 @@ function Generator.generate(w,h)
 		
 		-- Randomly re-connect nodes in the tree to form loops
 		do
-			local connections, c = 4, 0
-			while connections > 0 and c < 1000 do
+			local num_connections, c = 6, 0
+			while num_connections > 0 and c < 1000 do
 				c = c + 1
-				local n1 = map.tree[math.random(#map.tree)]
-				local n2p = n1.parent.adjacent[math.random(#n1.parent.adjacent)]
-				local n2 = map.tree[map.tree[n2p]]
-				if n1.room ~= n2.room and not n1.adjacent[n2] then
-					connections = connections - 1
-					c = 0
+				local rand_node = map.tree[math.random(#map.tree)]
+				
+				-- Get all connectable adjacent rooms and subtract the ones we have already connected to.
+				local all_adj_rooms = adjacentRooms(rand_node.parent)
+				local connected_adj_rooms = adjacentRooms(rand_node)
+				
+				for k,_ in pairs(connected_adj_rooms) do
+					assert(all_adj_rooms[k])
+					all_adj_rooms[k] = nil
+				end
+				
+				if next(all_adj_rooms) then
+					-- Get all potential connections to the unconnected adjacent room
+					local connections, visited = adjRoomSearch(rand_node.parent, all_adj_rooms)
+					assert(#connections > 0)
+					
+					for k,_ in pairs(visited) do k.highlight = nil end
+					
+					local connection = connections[math.random(#connections)]
+					assert(connection)
+					local n1, n2 = connection[1], connection[2]
+					n1, n2 = map.tree[map.tree[n1]], map.tree[map.tree[n2]]
+					
+					num_connections = num_connections - 1
+					c = 1
 					
 					n1.adjacent[#n1.adjacent+1] = n2
 					n1.adjacent[n2] = true
@@ -235,7 +294,7 @@ function Generator.generate(w,h)
 				end
 			end
 			
-			if connections ~= 0 then
+			if num_connections ~= 0 then
 				print("Not enough reconnections")
 			end
 		end
