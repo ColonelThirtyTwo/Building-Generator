@@ -29,7 +29,7 @@ gl.glLoadIdentity()
 gl.glOrtho(0,SCREEN_W,0,SCREEN_H,-20,20)
 gl.glMatrixMode(glc.GL_MODELVIEW)
 
-local updateTime = 0.1
+local updateTime = 0.05
 local nextUpdate = glfw.glfwGetTime() + updateTime
 local map, genroutine = require("generator").generate(W,H)
 

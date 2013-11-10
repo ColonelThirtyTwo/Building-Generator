@@ -22,6 +22,9 @@ end
 local function center(self)
 	return self.x + 0.5, self.y + 0.5
 end
+local function offsetCenter(self)
+	return self.x + 0.3, self.y+0.3
+end
 
 local function gabriel(verticies)
 	coroutine.yield()
@@ -132,7 +135,6 @@ function Generator.generate(w,h)
 		
 		-- Generate nodes
 		for _,room in ipairs(map.rooms) do
-			room.nodes = room.nodes or {}
 			for x=room.x,room.x+room.w-1 do
 				for y=room.y,room.y+room.h-1 do
 					local n = {
@@ -143,8 +145,7 @@ function Generator.generate(w,h)
 						center = center,
 					}
 					map.nodes[#map.nodes+1] = n
-					room.nodes[#room.nodes+1] = n
-					coroutine.yield(0.1)
+					coroutine.yield(0.5)
 				end
 			end
 		end
@@ -153,27 +154,65 @@ function Generator.generate(w,h)
 		local graphgen = coroutine.wrap(relneighbor)
 		graphgen(map.nodes)
 		for p1, p2 in graphgen do
-			if p1.room ~= p2.room then
-				p1.adjacent[#p1.adjacent+1] = p2
-				p1.adjacent[p2] = true
+			p1.adjacent[#p1.adjacent+1] = p2
+			p1.adjacent[p2] = true
+			
+			p2.adjacent[#p2.adjacent+1] = p1
+			p2.adjacent[p1] = true
+			coroutine.yield()
+		end
+		
+		-- Generate Minimum spanning tree
+		do
+			local tree = map.tree
+			do
+				local bn = map.nodes[1]
+				local n = {
+					x = bn.x, y = bn.y,
+					room = bn.room,
+					center = offsetCenter,
+					parent = bn,
+					adjacent = {},
+				}
+				tree[1] = n
+				tree[n.parent] = 1
+				coroutine.yield()
+			end
+			
+			while #tree ~= #map.nodes do
+				local min_in, min_out, min_d = tree[1], nil, math.huge
+				for _,node1 in ipairs(tree) do
+					for _,node2 in ipairs(node1.parent.adjacent) do
+						if not tree[node2]then
+							local d = dist2(node1.x, node1.y, node2.x, node2.y)
+							if d < min_d then
+								min_in = node1
+								min_out = node2
+								min_d = d
+							end
+						end
+					end
+				end
+				assert(min_out)
 				
-				p2.adjacent[#p2.adjacent+1] = p1
-				p2.adjacent[p1] = true
-				coroutine.yield(0.2)
+				local n = {
+					x = min_out.x, y = min_out.y,
+					room = min_out.room,
+					center = offsetCenter,
+					parent = min_out,
+					adjacent = {},
+				}
+				local i = #tree+1
+				tree[i] = n
+				tree[n.parent] = i
+				
+				min_in.adjacent[#min_in.adjacent+1] = n
+				min_in.adjacent[n] = true
+				n.adjacent[1] = min_in
+				n.adjacent[min_in] = true
+				coroutine.yield()
 			end
 		end
-		
-		-- Mark nodes for deletion
-		for i=#map.nodes,1,-1 do
-			local node = map.nodes[i]
-			if #node.adjacent == 0 then
-				table.remove(map.nodes, i)
-				assert(removeVal(node.room.nodes, node))
-				node.room.nodes[node] = nil
-				coroutine.yield(0.2)
-			end
-		end
-		
 	end)
 end
 
