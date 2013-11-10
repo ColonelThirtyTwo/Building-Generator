@@ -48,10 +48,12 @@ function Map:draw(highlightlayer)
 			for _,other in ipairs(node.adjacent) do
 				local ocx, ocy, ocz = other:center()
 				
-				local a = (not highlightlayer or cz == highlightlayer or ocz == highlightlayer) and 1 or 0.1
+				local a = (not highlightlayer or cz == highlightlayer) and 1 or 0.1
 				gl.glColor4d(0.8,0.8,0.4,a)
-				
 				gl.glVertex3d(cx, cy, cz+0.05)
+				
+				a = (not highlightlayer or ocz == highlightlayer) and 1 or 0.1
+				gl.glColor4d(0.8,0.8,0.4,a)
 				gl.glVertex3d(ocx, ocy, ocz+0.05)
 			end
 		end
@@ -85,10 +87,12 @@ function Map:draw(highlightlayer)
 			for _,other in ipairs(node.adjacent) do
 				local ocx, ocy, ocz = other:center()
 				
-				local a = (not highlightlayer or cz == highlightlayer or ocz == highlightlayer) and 1 or 0.1
+				local a = (not highlightlayer or cz == highlightlayer) and 1 or 0.1
 				gl.glColor4d(0.8,0.2,0.2,a)
-				
 				gl.glVertex3d(cx, cy, cz+0.05)
+				
+				a = (not highlightlayer or ocz == highlightlayer) and 1 or 0.1
+				gl.glColor4d(0.8,0.2,0.2,a)
 				gl.glVertex3d(ocx, ocy, ocz+0.05)
 			end
 		end
