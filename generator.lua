@@ -27,10 +27,14 @@ local function removeVal(tbl, val)
 end
 
 local function center(self)
-	return self.x + 0.6, self.y + 0.6, self.z
+	return self.x + 0.5, self.y + 0.5, self.z
 end
-local function offsetCenter(self)
-	return self.x + 0.4, self.y+0.4, self.z
+local function drawCenter(self)
+	if self.parent then
+		return self.x + 0.6, self.y+0.6, self.z
+	else
+		return self.x + 0.4, self.y+0.4, self.z
+	end
 end
 
 local function adjacentRooms(node, baseroom, list, visited)
@@ -182,6 +186,7 @@ function Generator.generate(options)
 						room = room,
 						adjacent = {},
 						center = center,
+						drawCenter = drawCenter,
 					}
 					map.nodes[#map.nodes+1] = n
 					coroutine.yield(0.5)
@@ -209,9 +214,10 @@ function Generator.generate(options)
 				local n = {
 					x = bn.x, y = bn.y, z = bn.z,
 					room = bn.room,
-					center = offsetCenter,
 					parent = bn,
 					adjacent = {},
+					center = center,
+					drawCenter = drawCenter,
 				}
 				tree[1] = n
 				tree[n.parent] = 1
@@ -238,9 +244,10 @@ function Generator.generate(options)
 				local n = {
 					x = min_out.x, y = min_out.y, z = min_out.z,
 					room = min_out.room,
-					center = offsetCenter,
 					parent = min_out,
 					adjacent = {},
+					center = offsetCenter,
+					drawCenter = drawCenter,
 				}
 				local i = #tree+1
 				tree[i] = n

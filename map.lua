@@ -42,10 +42,10 @@ function Map:draw(highlightlayer)
 	if self.nodes then
 		gl.glBegin(glc.GL_LINES)
 		for _,node in ipairs(self.nodes) do
-			local cx, cy, cz = node:center()
+			local cx, cy, cz = node:drawCenter()
 			
 			for _,other in ipairs(node.adjacent) do
-				local ocx, ocy, ocz = other:center()
+				local ocx, ocy, ocz = other:drawCenter()
 				
 				local a = (not highlightlayer or cz == highlightlayer) and 1 or 0.1
 				gl.glColor4d(0.8,0.8,0.4,a)
@@ -67,7 +67,7 @@ function Map:draw(highlightlayer)
 				gl.glColor4d(1,1,0.5,a)
 			end
 			
-			local cx, cy, cz = node:center()
+			local cx, cy, cz = node:drawCenter()
 			gl.glVertex3d(cx-0.1, cy, cz+0.1)
 			gl.glVertex3d(cx, cy+0.1, cz+0.1)
 			gl.glVertex3d(cx+0.1, cy, cz+0.1)
@@ -81,10 +81,10 @@ function Map:draw(highlightlayer)
 		gl.glColor3d(0.8,0.2,0.2)
 		gl.glBegin(glc.GL_LINES)
 		for _,node in ipairs(self.tree) do
-			local cx, cy, cz = node:center()
+			local cx, cy, cz = node:drawCenter()
 			
 			for _,other in ipairs(node.adjacent) do
-				local ocx, ocy, ocz = other:center()
+				local ocx, ocy, ocz = other:drawCenter()
 				
 				local a = (not highlightlayer or cz == highlightlayer) and 1 or 0.1
 				gl.glColor4d(0.8,0.2,0.2,a)
@@ -106,7 +106,7 @@ function Map:draw(highlightlayer)
 				gl.glColor4d(1,0.3,0.3,a)
 			end
 			
-			local cx, cy, cz = node:center()
+			local cx, cy, cz = node:drawCenter()
 			gl.glVertex3d(cx-0.1, cy, cz+0.1)
 			gl.glVertex3d(cx, cy+0.1, cz+0.1)
 			gl.glVertex3d(cx+0.1, cy, cz+0.1)
