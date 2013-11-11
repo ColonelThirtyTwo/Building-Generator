@@ -4,10 +4,17 @@ local Map = require "map"
 
 local Generator = {}
 
+local abs = math.abs
+
 local function dist2(x1,y1,z1,x2,y2,z2)
 	local dx, dy, dz = x1-x2, y1-y2, z1-z2
 	return dx*dx+dy*dy+dz*dz*20
 end
+
+--[[local function dist2(x1,y1,z1,x2,y2,z2)
+	local dx, dy, dz = x1-x2, y1-y2, z1-z2
+	return abs(dx) + abs(dy) + abs(dz) * 20
+end]]
 
 local function removeVal(tbl, val)
 	for i=1,#tbl do
@@ -138,16 +145,7 @@ function Generator.generate(options)
 			local room
 			local c = 0
 			repeat
-				local w,h
-				if math.random() <= 0.3 then
-					w, h = 1, math.random(2,4)
-				else
-					w, h = math.random(2,5), 1
-				end
-				
-				local x, y, z = math.random(0,map.w-1-w), math.random(0, map.h-1-h), math.random(map.d)
-				
-				room = Room(x,y,z,w,h)
+				room = options.genroom(map)
 				for _, other in ipairs(map.rooms) do
 					if room:intersects(other) then
 						room = nil

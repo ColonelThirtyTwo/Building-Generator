@@ -5,6 +5,7 @@ local SCREEN_W, SCREEN_H = 1600, 900
 local W, H, D = 30, 6, 3
 local lj_glfw = require "glfw"
 local bit = require "bit"
+local Room = require "room"
 
 local gl, glc, glu, glfw = lj_glfw.libraries()
 
@@ -42,6 +43,19 @@ local map, genroutine = require("generator").generate({
 	
 	rooms = 50,
 	loops = 10,
+	
+	genroom = function(map)
+		local w,h
+		if math.random() <= 0.3 then
+			w, h = 1, math.random(2,4)
+		else
+			w, h = math.random(2,5), 1
+		end
+		
+		local x, y, z = math.random(0,map.w-1-w), math.random(0, map.h-1-h), math.random(map.d)
+		
+		return Room(x,y,z,w,h)
+	end
 })
 
 local function keyboard_cb(window, key, scancode, action, mods)
