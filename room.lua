@@ -1,7 +1,6 @@
 
 local oop = require "oop"
-local lujgl = require "lujgl"
-local gl, glc = lujgl.gl, lujgl.glconst
+local gl, glc = require("glfw").libraries()
 
 local Room, super = oop.Class()
 

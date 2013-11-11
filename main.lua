@@ -3,16 +3,14 @@ math.randomseed(os.time())
 
 local SCREEN_W, SCREEN_H = 1600, 900
 local W, H, D = 30, 6, 3
-local lujgl = require "lujgl"
+local lj_glfw = require "glfw"
 local bit = require "bit"
 
-local gl, glu, glc, glfw = lujgl.gl, lujgl.glu, lujgl.glconst, lujgl.glfw
+local gl, glc, glu, glfw = lj_glfw.libraries()
 
-assert(glfw.glfwInit() ~= 0)
-local window = glfw.glfwCreateWindow(1600, 900, "Test", nil, nil)
-assert(window ~= nil)
-
-glfw.glfwMakeContextCurrent(window)
+lj_glfw.init()
+local window = lj_glfw.Window(SCREEN_W, SCREEN_H, "Building Gen")
+window:makeContextCurrent()
 
 gl.glEnable(glc.GL_DEPTH_TEST)
 gl.glDisable(glc.GL_CULL_FACE)
@@ -47,10 +45,10 @@ local map, genroutine = require("generator").generate({
 })
 
 local function keyboard_cb(window, key, scancode, action, mods)
-	if action == lujgl.glfwconst.GLFW_PRESS then
-		if key == lujgl.glfwconst.GLFW_KEY_UP then
+	if action == glc.GLFW_PRESS then
+		if key == glc.GLFW_KEY_UP then
 			highlight_layer = highlight_layer + 1
-		elseif key == lujgl.glfwconst.GLFW_KEY_DOWN then
+		elseif key == glc.GLFW_KEY_DOWN then
 			highlight_layer = highlight_layer - 1
 		end
 		
@@ -58,27 +56,28 @@ local function keyboard_cb(window, key, scancode, action, mods)
 	end
 end
 require("jit").off(keyboard_cb)
-glfw.glfwSetKeyCallback(window, keyboard_cb)
+window:setKeyCallback(keyboard_cb)
 
-while glfw.glfwWindowShouldClose(window) == 0 do
+while not window:shouldClose() do
 	gl.glClear(bit.bor(glc.GL_COLOR_BUFFER_BIT, glc.GL_DEPTH_BUFFER_BIT))
 	
 	map:draw(highlight_layer ~= 0 and highlight_layer or nil)
 	
-	glfw.glfwSwapBuffers(window)
+	window:swapBuffers()
 	
 	if coroutine.status(genroutine) == "suspended" then
-		if glfw.glfwGetTime() >= nextUpdate then
+		if lj_glfw.getTime() >= nextUpdate then
 			local ok, tm = coroutine.resume(genroutine)
 			if not ok then
 				error(debug.traceback(genroutine, tostring(tm), 0), 0)
 			end
 			nextUpdate = nextUpdate + updateTime * (tm or 1)
 		end
-		glfw.glfwPollEvents()
+		lj_glfw.pollEvents()
 	else
-		glfw.glfwWaitEvents()
+		lj_glfw.waitEvents()
 	end
 end
 
-glfw.glfwTerminate()
+window:destroy()
+lj_glfw.terminate()
