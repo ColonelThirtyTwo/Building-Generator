@@ -7,11 +7,13 @@ local Generator = {}
 local abs = math.abs
 
 local function dist2(x1,y1,z1,x2,y2,z2)
+	-- Euler^2
 	local dx, dy, dz = x1-x2, y1-y2, z1-z2
 	return dx*dx+dy*dy+dz*dz*20
 end
 
 --[[local function dist2(x1,y1,z1,x2,y2,z2)
+	-- Manhattan
 	local dx, dy, dz = x1-x2, y1-y2, z1-z2
 	return abs(dx) + abs(dy) + abs(dz) * 20
 end]]
@@ -29,13 +31,15 @@ end
 local function center(self)
 	return self.x + 0.5, self.y + 0.5, self.z
 end
+local drawCenter = center
+--[[
 local function drawCenter(self)
 	if self.parent then
 		return self.x + 0.6, self.y+0.6, self.z
 	else
 		return self.x + 0.4, self.y+0.4, self.z
 	end
-end
+end]]
 
 local function adjacentRooms(node, baseroom, list, visited)
 	list = list or {}
@@ -62,9 +66,6 @@ local function adjRoomSearch(node, rooms, baseroom, list, visited, prev)
 	visited = visited or {}
 	
 	if not visited[node] then
-		node.highlight = true
-		coroutine.yield()
-		
 		visited[node] = true
 		if node.room == baseroom then
 			for _,adjnode in ipairs(node.adjacent) do
@@ -77,7 +78,7 @@ local function adjRoomSearch(node, rooms, baseroom, list, visited, prev)
 	return list, visited
 end
 
-local function gabriel(verticies)
+--[[local function gabriel(verticies)
 	coroutine.yield()
 	for i=2,#verticies do
 		for j=1,i-1 do
@@ -103,7 +104,7 @@ local function gabriel(verticies)
 			end
 		end
 	end
-end
+end]]
 
 local function relneighbor(verticies)
 	coroutine.yield()
@@ -176,6 +177,7 @@ function Generator.generate(options)
 		end
 		
 		-- Generate nodes
+		map.drawtype = "nodes"
 		for _,room in ipairs(map.rooms) do
 			for x=room.x,room.x+room.w-1 do
 				for y=room.y,room.y+room.h-1 do
@@ -209,6 +211,7 @@ function Generator.generate(options)
 		-- Generate minimum spanning tree
 		do
 			local tree = map.tree
+			map.drawtype = "tree"
 			do
 				local bn = map.nodes[1]
 				local n = {
@@ -282,7 +285,7 @@ function Generator.generate(options)
 					local connections, visited = adjRoomSearch(rand_node.parent, all_adj_rooms)
 					assert(#connections > 0)
 					
-					for k,_ in pairs(visited) do k.highlight = nil end
+					--for k,_ in pairs(visited) do k.highlight = nil end
 					
 					local connection = connections[math.random(#connections)]
 					assert(connection)

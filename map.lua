@@ -39,7 +39,7 @@ function Map:draw(highlightlayer)
 	gl.glClear(glc.GL_DEPTH_BUFFER_BIT)
 	
 	-- Draw room graph
-	if self.nodes then
+	if self.drawtype == "nodes" then
 		gl.glBegin(glc.GL_LINES)
 		for _,node in ipairs(self.nodes) do
 			local cx, cy, cz = node:drawCenter()
@@ -77,7 +77,7 @@ function Map:draw(highlightlayer)
 	end
 	
 	-- Draw minimal tree
-	if self.tree then
+	if self.drawtype == "tree" then
 		gl.glColor3d(0.8,0.2,0.2)
 		gl.glBegin(glc.GL_LINES)
 		for _,node in ipairs(self.tree) do
