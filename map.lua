@@ -30,11 +30,12 @@ end
 
 function Map:draw(highlightlayer)
 	-- Draw each layer individually
-	for i,layer in ipairs(self.layers) do
+	for i=1,#self.layers do
+		local layer = self.layers[i]
 		--gl.glClear(glc.GL_DEPTH_BUFFER_BIT)
 		
 		for _,room in ipairs(layer) do
-			room:draw((not highlightlayer or i == highlightlayer) and 1 or 0.2)
+			room:draw((not highlightlayer or i == highlightlayer) and 0.8 or 0.2)
 		end
 		
 		if self.addtionalDrawFuncs then

@@ -105,7 +105,14 @@ end
 
 local function graphDrawer(graph, r,g,b)
 	return function(layer, highlight)
-	
+		
+		local a
+		if highlight then
+			a = layer == highlight and 0.5 or 0.1
+		else
+			a = 0.5
+		end
+		
 		gl.glBegin(glc.GL_LINES)
 		for _,node in ipairs(graph) do
 			if node.z == layer then
@@ -114,11 +121,9 @@ local function graphDrawer(graph, r,g,b)
 				for _,other in ipairs(node.adjacent) do
 					local ocx, ocy, ocz = other:drawCenter()
 					
-					local a = (not highlight or cz == highlight) and 1 or 0.1
 					gl.glColor4d(r,g,b,a)
 					gl.glVertex3d(cx, cy, cz+0.05)
 					
-					a = (not highlight or ocz == highlight) and 1 or 0.1
 					gl.glColor4d(r,g,b,a)
 					gl.glVertex3d(ocx, ocy, ocz+0.05)
 				end
@@ -129,7 +134,7 @@ local function graphDrawer(graph, r,g,b)
 		gl.glBegin(glc.GL_QUADS)
 		for _,node in ipairs(graph) do
 			if node.z == layer then
-				local a = (not highlight or node.z == highlight) and 1 or 0.1
+				
 				if node.highlight then
 					gl.glColor4d(r,g,b,a)
 				else
