@@ -55,11 +55,12 @@ gl.glMatrixMode(glc.GL_PROJECTION)
 gl.glLoadIdentity()
 --gl.glOrtho(0,SCREEN_W,0,SCREEN_H,-20,20)
 gl.glOrtho(-W, W, -H, H, -50, 50)
+--glu.gluPerspective(90, SCREEN_W/SCREEN_H, 0.05, 100)
 
 gl.glMatrixMode(glc.GL_MODELVIEW)
 gl.glLoadIdentity()
 glu.gluLookAt(
-	20, 20, 20,
+	W/2+3, H/2+7, D/2+10,
 	W/2, H/2, D/2,
 	0,1,0
 )
@@ -68,6 +69,7 @@ glu.gluLookAt(
 
 local updateTime = 0.05
 local highlight_layer = 0
+local rotate = 0
 local nextUpdate = glfw.glfwGetTime() + updateTime
 local map, genroutine = require("generator").generate({
 	w = W, h = H, d = D,
@@ -106,7 +108,14 @@ window:setKeyCallback(keyboard_cb)
 while not window:shouldClose() do
 	gl.glClear(bit.bor(glc.GL_COLOR_BUFFER_BIT, glc.GL_DEPTH_BUFFER_BIT))
 	
+	gl.glPushMatrix()
+	
+	gl.glTranslated(W/2, H/2, D/2)
+	gl.glRotated(rotate, 0, 1, 0)
+	gl.glTranslated(-W/2, -H/2, -D/2)
+	
 	map:draw(highlight_layer ~= 0 and highlight_layer or nil)
+	gl.glPopMatrix()
 	
 	window:swapBuffers()
 	
@@ -118,10 +127,11 @@ while not window:shouldClose() do
 			end
 			nextUpdate = nextUpdate + updateTime * (tm or 1)
 		end
-		lj_glfw.pollEvents()
 	else
-		lj_glfw.waitEvents()
+		rotate = (lj_glfw.getTime() - nextUpdate) * 2
 	end
+	
+	lj_glfw.pollEvents()
 end
 
 window:destroy()
