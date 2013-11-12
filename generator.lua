@@ -1,6 +1,7 @@
 
 local Room = require "room"
 local Map = require "map"
+local gl, glc = require("glfw").libraries()
 
 local Generator = {}
 
@@ -32,14 +33,6 @@ local function center(self)
 	return self.x + 0.5, self.y + 0.5, self.z
 end
 local drawCenter = center
---[[
-local function drawCenter(self)
-	if self.parent then
-		return self.x + 0.6, self.y+0.6, self.z
-	else
-		return self.x + 0.4, self.y+0.4, self.z
-	end
-end]]
 
 local function adjacentRooms(node, baseroom, list, visited)
 	list = list or {}
@@ -78,34 +71,6 @@ local function adjRoomSearch(node, rooms, baseroom, list, visited, prev)
 	return list, visited
 end
 
---[[local function gabriel(verticies)
-	coroutine.yield()
-	for i=2,#verticies do
-		for j=1,i-1 do
-			local p1x, p1y, p1z = verticies[i]:center()
-			local p2x, p2y, p2z = verticies[j]:center()
-			
-			local midx, midy, midz = (p1x+p2x)/2, (p1y+p2y)/2, (p1z+p2z)/2
-			local r2 = dist2(midx, midy, midz, p1x, p1y, p1z)
-			
-			local is_neighbor = true
-			for k=1,#verticies do
-				if k ~= i and k ~= j then
-					local p3x, p3y, p3z = verticies[k]:center()
-					if dist2(midx, midy, midz, p3x, p3y, p3z) <= r2 then
-						is_neighbor = false
-						break
-					end
-				end
-			end
-			
-			if is_neighbor then
-				coroutine.yield(verticies[i], verticies[j])
-			end
-		end
-	end
-end]]
-
 local function relneighbor(verticies)
 	coroutine.yield()
 	for i=2,#verticies do
@@ -129,6 +94,56 @@ local function relneighbor(verticies)
 				coroutine.yield(verticies[i], verticies[j])
 			end
 		end
+	end
+end
+
+local function isStraight(n1, n2)
+	return (n1.x == n2.x and n1.y == n2.y) or
+	       (n1.y == n2.y and n1.z == n2.z) or
+	       (n1.x == n2.x and n1.z == n2.z)
+end
+
+local function graphDrawer(graph, r,g,b)
+	return function(layer, highlight)
+	
+		gl.glBegin(glc.GL_LINES)
+		for _,node in ipairs(graph) do
+			if node.z == layer then
+				local cx, cy, cz = node:drawCenter()
+				
+				for _,other in ipairs(node.adjacent) do
+					local ocx, ocy, ocz = other:drawCenter()
+					
+					local a = (not highlight or cz == highlight) and 1 or 0.1
+					gl.glColor4d(r,g,b,a)
+					gl.glVertex3d(cx, cy, cz+0.05)
+					
+					a = (not highlight or ocz == highlight) and 1 or 0.1
+					gl.glColor4d(r,g,b,a)
+					gl.glVertex3d(ocx, ocy, ocz+0.05)
+				end
+			end
+		end
+		gl.glEnd()
+		
+		gl.glBegin(glc.GL_QUADS)
+		for _,node in ipairs(graph) do
+			if node.z == layer then
+				local a = (not highlight or node.z == highlight) and 1 or 0.1
+				if node.highlight then
+					gl.glColor4d(r,g,b,a)
+				else
+					gl.glColor4d(r,g,b,a)
+				end
+				
+				local cx, cy, cz = node:drawCenter()
+				gl.glVertex3d(cx-0.1, cy, cz+0.1)
+				gl.glVertex3d(cx, cy+0.1, cz+0.1)
+				gl.glVertex3d(cx+0.1, cy, cz+0.1)
+				gl.glVertex3d(cx, cy-0.1, cz+0.1)
+			end
+		end
+		gl.glEnd()
 	end
 end
 
@@ -177,7 +192,7 @@ function Generator.generate(options)
 		end
 		
 		-- Generate nodes
-		map.drawtype = "nodes"
+		map.addtionalDrawFuncs = {graphDrawer(map.nodes, 0.7, 0.7, 0.7)}
 		for _,room in ipairs(map.rooms) do
 			for x=room.x,room.x+room.w-1 do
 				for y=room.y,room.y+room.h-1 do
@@ -209,11 +224,11 @@ function Generator.generate(options)
 		end
 		
 		-- Generate minimum spanning tree
+		map.addtionalDrawFuncs = {graphDrawer(map.tree, 0.3, 0.8, 0.3)}
 		do
 			local tree = map.tree
-			map.drawtype = "tree"
 			do
-				local bn = map.nodes[1]
+				local bn = map.nodes[math.random(#map.nodes)]
 				local n = {
 					x = bn.x, y = bn.y, z = bn.z,
 					room = bn.room,
@@ -308,8 +323,42 @@ function Generator.generate(options)
 			end
 		end
 		
+		-- Don't need complete graph anymore
 		map.nodes = nil
-		coroutine.yield()
+		for k,_ in pairs(map.tree) do
+			if type(k) ~= "number" then
+				map.tree[k] = nil
+			end
+		end
+		
+		map.addtionalDrawFuncs = {graphDrawer(map.tree, 0.8, 0.3, 0.3)}
+		
+		-- Filter out edges that span the same room
+		for _,node in ipairs(map.tree) do
+			node.parent = nil -- No longer need this
+			
+			for i=#node.adjacent,1,-1 do
+				local adj = node.adjacent[i]
+				if node.room == adj.room then
+					table.remove(node.adjacent, i)
+					node.adjacent[adj] = nil
+					coroutine.yield(0.5)
+				end
+			end
+		end
+		
+		-- Filter out nodes that don't have edges
+		for i=#map.tree,1,-1 do
+			local node = map.tree[i]
+			if #node.adjacent == 0 then
+				table.remove(map.tree, i)
+				coroutine.yield()
+			end
+		end
+		
+		map.addtionalDrawFuncs = {graphDrawer(map.tree, 0.3, 0.3, 0.8)}
+		
+		--coroutine.yield()
 	end)
 end
 

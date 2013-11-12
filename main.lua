@@ -1,5 +1,8 @@
 
 math.randomseed(os.time())
+require("jit").off()
+
+local ffi = require "ffi"
 
 local SCREEN_W, SCREEN_H = 1600, 900
 local W, H, D = 30, 6, 3
@@ -9,8 +12,36 @@ local Room = require "room"
 
 local gl, glc, glu, glfw = lj_glfw.libraries()
 
+glfw.glfwSetErrorCallback(function(code,cstr)
+	print(code, ffi.string(cstr))
+end)
+
 lj_glfw.init()
 local window = lj_glfw.Window(SCREEN_W, SCREEN_H, "Building Gen")
+--[[
+local window
+do
+	local monitors = lj_glfw.getMonitors()
+	--for k,v in pairs(monitors) do print(k,v) end
+	local primary = lj_glfw.getPrimaryMonitor()
+	print("primary", primary)
+	local monitor
+	for _,m in ipairs(monitors) do
+		local videomode = glfw.glfwGetVideoMode(m)
+		print(m, ffi.string(glfw.glfwGetMonitorName(m)), videomode.width, videomode.height)
+		if m ~= primary then
+			monitor = m
+			break
+		end
+	end
+	
+	print(monitor)
+	local videomode = glfw.glfwGetVideoMode(monitor)
+	window = lj_glfw.Window(videomode.width, videomode.height, "Building Gen", monitor)
+end
+]]
+
+SCREEN_W, SCREEN_H = window:getFramebufferSize()
 window:makeContextCurrent()
 
 gl.glEnable(glc.GL_DEPTH_TEST)

@@ -29,90 +29,19 @@ function Map:addRoom(room)
 end
 
 function Map:draw(highlightlayer)
-	-- Draw rooms
+	-- Draw each layer individually
 	for i,layer in ipairs(self.layers) do
+		--gl.glClear(glc.GL_DEPTH_BUFFER_BIT)
+		
 		for _,room in ipairs(layer) do
 			room:draw((not highlightlayer or i == highlightlayer) and 1 or 0.2)
 		end
-	end
-	
-	gl.glClear(glc.GL_DEPTH_BUFFER_BIT)
-	
-	-- Draw room graph
-	if self.drawtype == "nodes" then
-		gl.glBegin(glc.GL_LINES)
-		for _,node in ipairs(self.nodes) do
-			local cx, cy, cz = node:drawCenter()
-			
-			for _,other in ipairs(node.adjacent) do
-				local ocx, ocy, ocz = other:drawCenter()
-				
-				local a = (not highlightlayer or cz == highlightlayer) and 1 or 0.1
-				gl.glColor4d(0.8,0.8,0.4,a)
-				gl.glVertex3d(cx, cy, cz+0.05)
-				
-				a = (not highlightlayer or ocz == highlightlayer) and 1 or 0.1
-				gl.glColor4d(0.8,0.8,0.4,a)
-				gl.glVertex3d(ocx, ocy, ocz+0.05)
-			end
-		end
-		gl.glEnd()
 		
-		gl.glBegin(glc.GL_QUADS)
-		for _,node in ipairs(self.nodes) do
-			local a = (not highlightlayer or node.z == highlightlayer) and 1 or 0.1
-			if node.highlight then
-				gl.glColor4d(1,0.1,0.1,a)
-			else
-				gl.glColor4d(1,1,0.5,a)
-			end
-			
-			local cx, cy, cz = node:drawCenter()
-			gl.glVertex3d(cx-0.1, cy, cz+0.1)
-			gl.glVertex3d(cx, cy+0.1, cz+0.1)
-			gl.glVertex3d(cx+0.1, cy, cz+0.1)
-			gl.glVertex3d(cx, cy-0.1, cz+0.1)
-		end
-		gl.glEnd()
-	end
-	
-	-- Draw minimal tree
-	if self.drawtype == "tree" then
-		gl.glColor3d(0.8,0.2,0.2)
-		gl.glBegin(glc.GL_LINES)
-		for _,node in ipairs(self.tree) do
-			local cx, cy, cz = node:drawCenter()
-			
-			for _,other in ipairs(node.adjacent) do
-				local ocx, ocy, ocz = other:drawCenter()
-				
-				local a = (not highlightlayer or cz == highlightlayer) and 1 or 0.1
-				gl.glColor4d(0.8,0.2,0.2,a)
-				gl.glVertex3d(cx, cy, cz+0.05)
-				
-				a = (not highlightlayer or ocz == highlightlayer) and 1 or 0.1
-				gl.glColor4d(0.8,0.2,0.2,a)
-				gl.glVertex3d(ocx, ocy, ocz+0.05)
+		if self.addtionalDrawFuncs then
+			for _,f in ipairs(self.addtionalDrawFuncs) do
+				f(i, highlightlayer)
 			end
 		end
-		gl.glEnd()
-		
-		gl.glBegin(glc.GL_QUADS)
-		for _,node in ipairs(self.tree) do
-			local a = (not highlightlayer or node.z == highlightlayer) and 1 or 0.1
-			if node.highlight then
-				gl.glColor4d(1,0.1,0.1,a)
-			else
-				gl.glColor4d(1,0.3,0.3,a)
-			end
-			
-			local cx, cy, cz = node:drawCenter()
-			gl.glVertex3d(cx-0.1, cy, cz+0.1)
-			gl.glVertex3d(cx, cy+0.1, cz+0.1)
-			gl.glVertex3d(cx+0.1, cy, cz+0.1)
-			gl.glVertex3d(cx, cy-0.1, cz+0.1)
-		end
-		gl.glEnd()
 	end
 end
 
