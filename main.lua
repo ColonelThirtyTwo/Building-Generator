@@ -1,6 +1,5 @@
 
 math.randomseed(os.time())
-require("jit").off()
 
 local ffi = require "ffi"
 
@@ -11,10 +10,6 @@ local bit = require "bit"
 local Room = require "room"
 
 local gl, glc, glu, glfw = lj_glfw.libraries()
-
-glfw.glfwSetErrorCallback(function(code,cstr)
-	print(code, ffi.string(cstr))
-end)
 
 lj_glfw.init()
 local window = lj_glfw.Window(SCREEN_W, SCREEN_H, "Building Gen")
@@ -54,8 +49,8 @@ gl.glBlendFunc(glc.GL_SRC_ALPHA, glc.GL_ONE_MINUS_SRC_ALPHA)
 gl.glMatrixMode(glc.GL_PROJECTION)
 gl.glLoadIdentity()
 --gl.glOrtho(0,SCREEN_W,0,SCREEN_H,-20,20)
-gl.glOrtho(-W, W, -H, H, -50, 50)
---glu.gluPerspective(90, SCREEN_W/SCREEN_H, 0.05, 100)
+--gl.glOrtho(-W, W, -H, H, -50, 50)
+glu.gluPerspective(90, SCREEN_W/SCREEN_H, 0.05, 100)
 
 gl.glMatrixMode(glc.GL_MODELVIEW)
 gl.glLoadIdentity()

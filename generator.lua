@@ -9,8 +9,8 @@ local abs = math.abs
 
 local function dist2(x1,y1,z1,x2,y2,z2)
 	-- Euler^2
-	local dx, dy, dz = x1-x2, y1-y2, z1-z2
-	return dx*dx+dy*dy+dz*dz*20
+	local dx, dy, dz = x1-x2, y1-y2, (z1-z2)*3
+	return dx*dx+dy*dy+dz*dz
 end
 
 --[[local function dist2(x1,y1,z1,x2,y2,z2)
@@ -135,17 +135,19 @@ local function graphDrawer(graph, r,g,b)
 		for _,node in ipairs(graph) do
 			if node.z == layer then
 				
-				if node.highlight then
-					gl.glColor4d(r,g,b,a)
-				else
-					gl.glColor4d(r,g,b,a)
-				end
-				
 				local cx, cy, cz = node:drawCenter()
-				gl.glVertex3d(cx-0.1, cy, cz+0.1)
-				gl.glVertex3d(cx, cy+0.1, cz+0.1)
-				gl.glVertex3d(cx+0.1, cy, cz+0.1)
-				gl.glVertex3d(cx, cy-0.1, cz+0.1)
+				
+				if node.highlight then
+					gl.glVertex3d(cx-0.2, cy, cz+0.1)
+					gl.glVertex3d(cx, cy+0.2, cz+0.1)
+					gl.glVertex3d(cx+0.2, cy, cz+0.1)
+					gl.glVertex3d(cx, cy-0.2, cz+0.1)
+				else
+					gl.glVertex3d(cx-0.1, cy, cz+0.1)
+					gl.glVertex3d(cx, cy+0.1, cz+0.1)
+					gl.glVertex3d(cx+0.1, cy, cz+0.1)
+					gl.glVertex3d(cx, cy-0.1, cz+0.1)
+				end
 			end
 		end
 		gl.glEnd()
@@ -225,7 +227,12 @@ function Generator.generate(options)
 			
 			p2.adjacent[#p2.adjacent+1] = p1
 			p2.adjacent[p1] = true
+			
+			p1.highlight = true
+			p2.highlight = true
 			coroutine.yield()
+			p1.highlight = nil
+			p2.highlight = nil
 		end
 		
 		-- Generate minimum spanning tree
@@ -280,7 +287,10 @@ function Generator.generate(options)
 				min_in.adjacent[n] = true
 				n.adjacent[1] = min_in
 				n.adjacent[min_in] = true
+				
+				n.highlight = true
 				coroutine.yield()
+				n.highlight = nil
 			end
 		end
 		
@@ -319,7 +329,12 @@ function Generator.generate(options)
 					n1.adjacent[n2] = true
 					n2.adjacent[#n2.adjacent+1] = n1
 					n2.adjacent[n1] = true
-					coroutine.yield()
+					
+					n1.highlight = true
+					n2.highlight = true
+					coroutine.yield(5)
+					n1.highlight = nil
+					n2.highlight = nil
 				end
 			end
 			
@@ -347,7 +362,12 @@ function Generator.generate(options)
 				if node.room == adj.room then
 					table.remove(node.adjacent, i)
 					node.adjacent[adj] = nil
+					
+					node.highlight = true
+					adj.highlight = true
 					coroutine.yield(0.5)
+					node.highlight = nil
+					adj.highlight = nil
 				end
 			end
 		end
@@ -356,10 +376,57 @@ function Generator.generate(options)
 		for i=#map.tree,1,-1 do
 			local node = map.tree[i]
 			if #node.adjacent == 0 then
-				table.remove(map.tree, i)
+				
+				node.highlight = true
 				coroutine.yield()
+				node.highlight = nil
+				
+				table.remove(map.tree, i)
 			end
 		end
+		
+		-- Straighten nodes
+		--[[for _,node in ipairs(map.tree) do
+			for i,adj in ipairs(node.adjacent) do
+				if not isStraight(node, adj) then
+					local newnode = {
+						x = node.x, y = node.y, z = node.z,
+						adjacent = {},
+						center = offsetCenter,
+						drawCenter = drawCenter,
+					}
+					if node.x ~= adj.x then
+						newnode.x = adj.x
+					elseif node.y ~= adj.y then
+						newnode.y = adj.y
+					elseif node.z ~= adj.z then
+						newnode.z = adj.z
+					else
+						assert(false)
+					end
+					
+					map.tree[#map.tree+1] = newnode
+					
+					node.adjacent[i] = newnode
+					node.adjacent[adj] = nil
+					node.adjacent[newnode] = true
+					
+					for j, adjadj in ipairs(adj.adjacent) do
+						if adjadj == node then
+							adj.adjacent[j] = newnode
+							adj.adjacent[node] = nil
+							adj.adjacent[newnode] = true
+							break
+						end
+					end
+					assert(not adj.adjacent[node])
+					
+					newnode.highlight = true
+					coroutine.yield(20)
+					newnode.highlight = nil
+				end
+			end
+		end]]
 		
 		map.addtionalDrawFuncs = {graphDrawer(map.tree, 0.3, 0.3, 0.8)}
 		
