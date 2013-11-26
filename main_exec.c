@@ -1,12 +1,12 @@
 
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <lua/lua.h>
+#include <lua/lauxlib.h>
+#include <lua/lualib.h>
 
 #include <stdlib.h>
 #include <stdio.h>
 
-int main(int argc, const char* argv)
+int main(int argc, const char** argv)
 {
 	lua_State* L = luaL_newstate();
 	if(!L)
