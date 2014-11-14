@@ -18,7 +18,7 @@ Procedure
 1. Randomly generate rectangular room placeholders in a grid.
 2. Move the rooms down, so that they are standing on another room or the ground.
 3. Create a node at every grid cell that is occupied by a room, keeping track of which room a node belongs to.
-4. Form a graph of possible room links with those nodes. The demo builds a Gabriel graph.
+4. Form a graph of possible room links with those nodes. The demo builds a [relative neighbor graph](http://en.wikipedia.org/wiki/Relative_neighborhood_graph).
 5. Traverse the graph to form the actual connections between rooms. The demo builds a minimal spanning tree.
 6. Randomly re-add connections from the possible links graph to the actual connections graph, to build some loops.
 7. Clean up the graph by removind edges that connect to the same room, then removing nodes that do not have edges.
